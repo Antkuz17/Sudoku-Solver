@@ -1,6 +1,16 @@
 const board = struct {
     cells: [81]u8,
     
+
+    // Initlizer for the board struct, by default returns a board with all zero'ed val's
+    pub fn init () board {
+        return . {
+            .cells =  [_]u8{0} ** 81,
+        };
+    }
+
+
+
     // Returns the number at a position on the grid
     pub fn at(self: board, x: u8, y: u8) u8 {
         return self.cells[y*9 + x];  
@@ -42,6 +52,14 @@ const board = struct {
         for (0..81) |i| {
             self.cells[i] = 0;
         }
+    }
+
+    // Returns false if cell empty and true otherwise
+    pub fn empty(self: board, x: u8, y: u8) bool {
+        if (self.cells[y*9 + x] == 0) {
+            return true;
+        }
+        return false;
     }
 
 };
