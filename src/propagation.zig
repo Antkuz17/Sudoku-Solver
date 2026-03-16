@@ -2,38 +2,49 @@ const board = @import("board.zig");
 const Board = board.Board;
 
 
-// brute force method of solving the sudoku
 pub fn propagation(sudoku_board: *Board) bool {
 
     const next_cell = find_most_constrained(sudoku_board.*);
 
-    // Base case, board is solved 
     if (next_cell == null) {
         return true;
     }
 
     const cell = next_cell.?;
+    const idx = cell.y * 9 + cell.x;
 
-    for (1..10) |i| {
-        if (sudoku_board.is_valid(cell.x, cell.y, @intCast(i))) {
-            sudoku_board.cells[cell.y * 9 + cell.x] = @intCast(i);
+    // Try each candidate from the bitmask
+    var mask = sudoku_board.candidates[idx];
+    while (mask != 0) {
+        const bit_pos = @ctz(mask);
+        const val: u8 = @intCast(bit_pos + 1);
+        mask &= mask - 1; // clear lowest set bit
+
+        // Save board state
+        const saved = sudoku_board.*;
+
+        // Place value and propagate
+        sudoku_board.cells[idx] = val;
+        sudoku_board.candidates[idx] = 0;
+
+        if (propagate(sudoku_board, cell.x, cell.y)) {
             if (propagation(sudoku_board)) {
                 return true;
             }
-            sudoku_board.cells[cell.y * 9 + cell.x] = 0;
         }
+
+        // Restore board state
+        sudoku_board.* = saved;
     }
-    
+
     return false;
-
-
 }
 
 // Only touches the candidates list no modifying the board
 pub fn propagate(sudoku_board: *Board, x: usize, y: usize) bool {
     const current_val: u8 = sudoku_board.cells[y * 9 + x];
-    const bit: u9 = @as(u9, 1) << @intCast(current_val);
-
+    const bit: u9 = @as(u9, 1) << @intCast(current_val - 1);
+    
     // Remove this value from all peers in the same row
     for (0..9) |i| {
         if (i == x) continue;
@@ -42,8 +53,8 @@ pub fn propagate(sudoku_board: *Board, x: usize, y: usize) bool {
         if (sudoku_board.cells[idx] != 0) continue;
         if (sudoku_board.candidates[idx] == 0) return false;
         if (@popCount(sudoku_board.candidates[idx]) == 1) {
-            const forced_val = @ctz(sudoku_board.candidates[idx]);
-            sudoku_board.cells[idx] = @intCast(forced_val);
+            const forced_val: u8 = @intCast(@ctz(sudoku_board.candidates[idx]));
+            sudoku_board.cells[idx] = forced_val + 1;
             if (!propagate(sudoku_board, i, y)) return false;
         }
     }
@@ -56,8 +67,8 @@ pub fn propagate(sudoku_board: *Board, x: usize, y: usize) bool {
         if (sudoku_board.cells[idx] != 0) continue;
         if (sudoku_board.candidates[idx] == 0) return false;
         if (@popCount(sudoku_board.candidates[idx]) == 1) {
-            const forced_val = @ctz(sudoku_board.candidates[idx]);
-            sudoku_board.cells[idx] = @intCast(forced_val);
+            const forced_val: u8 = @intCast(@ctz(sudoku_board.candidates[idx]));
+            sudoku_board.cells[idx] = forced_val + 1;
             if (!propagate(sudoku_board, x, i)) return false;
         }
     }
@@ -75,8 +86,8 @@ pub fn propagate(sudoku_board: *Board, x: usize, y: usize) bool {
             if (sudoku_board.cells[idx] != 0) continue;
             if (sudoku_board.candidates[idx] == 0) return false;
             if (@popCount(sudoku_board.candidates[idx]) == 1) {
-                const forced_val = @ctz(sudoku_board.candidates[idx]);
-                sudoku_board.cells[idx] = @intCast(forced_val);
+                const forced_val: u8 = @intCast(@ctz(sudoku_board.candidates[idx]));
+                sudoku_board.cells[idx] = forced_val + 1;
                 if (!propagate(sudoku_board, px, py)) return false;
             }
         }

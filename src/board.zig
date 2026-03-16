@@ -11,6 +11,7 @@ pub const Board = struct {
     pub fn init () Board {
         return . {
             .cells =  [_]u8{0} ** 81,
+            .candidates = [_]u9{0} ** 81,
         };
     }
 
@@ -30,7 +31,7 @@ pub const Board = struct {
             // go through each val and see if valid, if so, set the bit
             for (1..10) |j| {
                 if(self.is_valid(x, y, @intCast(j))){
-                    self.candidates[i] |= @as(u9, 1) << @intCast(j);
+                    self.candidates[i] |= @as(u9, 1) << @intCast(j - 1);
                 }
             }
         }

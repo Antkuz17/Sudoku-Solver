@@ -2,7 +2,7 @@ const board = @import("board.zig");
 const Board = board.Board;
 
 
-// brute force method of solving the sudoku
+// mrv method of solving the sudoku
 pub fn mrv(sudoku_board: *Board) bool {
 
     const next_cell = find_most_constrained(sudoku_board.*);

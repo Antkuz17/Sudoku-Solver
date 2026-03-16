@@ -4,13 +4,16 @@ const Board = board.Board;
 
 const brute_force = @import("brute_force.zig");
 const mrv = @import("mrv.zig");
+const propagation = @import("propagation.zig");
 
 pub fn main() !void {
     var test1 = Board.init();
     apply_Board_1(&test1);
     test1.print();
 
-    _ = mrv.mrv(&test1);
+    test1.initialize_candidates();
+
+    _ = propagation.propagation(&test1);
 
     test1.print();
 
