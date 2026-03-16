@@ -2,6 +2,9 @@ const std = @import("std");
 
 pub const Board = struct {
     cells: [81]u8,
+
+    // bitwise rep of all cells on the board
+    candidates: [81]u9,
     
 
     // Initlizer for the Board struct, by default returns a Board with all zero'ed val's
@@ -9,6 +12,28 @@ pub const Board = struct {
         return . {
             .cells =  [_]u8{0} ** 81,
         };
+    }
+
+    // Go through board array and set the bits for each position
+    pub fn initialize_candidates(self: *Board) void {
+        for (0..81) |i| {
+
+            // Converting back to x y
+            const x = i % 9;
+            const y = i / 9;
+
+            // If the current cell has a val, no need for bit mask
+            if(self.cells[i] != 0) {
+                continue;
+            }
+
+            // go through each val and see if valid, if so, set the bit
+            for (1..10) |j| {
+                if(self.is_valid(x, y, @intCast(j))){
+                    self.candidates[i] |= @as(u9, 1) << @intCast(j);
+                }
+            }
+        }
     }
 
 
