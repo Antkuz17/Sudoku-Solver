@@ -1,3 +1,5 @@
+const std = @import("std");
+
 const board = struct {
     cells: [81]u8,
     
@@ -60,6 +62,30 @@ const board = struct {
             return true;
         }
         return false;
+    }
+
+
+    pub fn print(self: Board) void {
+        const stdout = std.io.getStdOut().writer();
+        
+        for (0..9) |row| {
+            if (row % 3 == 0) {
+                stdout.print("+-------+-------+-------+\n", .{}) catch unreachable;
+            }
+            for (0..9) |col| {
+                if (col % 3 == 0) {
+                    stdout.print("| ", .{}) catch unreachable;
+                }
+                const val = self.cells[row * 9 + col];
+                if (val == 0) {
+                    stdout.print(". ", .{}) catch unreachable;
+                } else {
+                    stdout.print("{d} ", .{val}) catch unreachable;
+                }
+            }
+            stdout.print("|\n", .{}) catch unreachable;
+        }
+        stdout.print("+-------+-------+-------+\n", .{}) catch unreachable;
     }
 
 };
