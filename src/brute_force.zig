@@ -15,7 +15,7 @@ pub fn brute_force(sudoku_board: *Board) bool {
     const cell = next_cell.?;
 
     for (1..10) |i| {
-        if (sudoku_board.is_valid(sudoku_board.*, cell.x, cell.y, @intCast(i))) {
+        if (sudoku_board.is_valid(cell.x, cell.y, @intCast(i))) {
             sudoku_board.cells[cell.y * 9 + cell.x] = @intCast(i);
             if (brute_force(sudoku_board)) {
                 return true;
@@ -60,7 +60,7 @@ pub fn find_empty(sudoku_board: Board) ?Cell {
     for(0..9) |i| {
         for(0..9) |j| {
             if(sudoku_board.cells[i * 9 + j] == 0) {
-                return (Cell.init(i, j));
+                return (Cell.init(j, i));
             }
         }
     }

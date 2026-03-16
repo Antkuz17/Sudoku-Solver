@@ -2,10 +2,18 @@ const std = @import("std");
 const board = @import("board.zig");
 const Board = board.Board;
 
+const brute_force = @import("brute_force.zig");
+
 pub fn main() !void {
     var test1 = Board.init();
     apply_Board_1(&test1);
     test1.print();
+
+    _ = brute_force.brute_force(&test1);
+
+    test1.print();
+
+
 }
 
 // known wikipedia pattern, 1 unique solution
