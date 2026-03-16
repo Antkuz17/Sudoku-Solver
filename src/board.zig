@@ -1,11 +1,11 @@
 const std = @import("std");
 
-const board = struct {
+pub const Board = struct {
     cells: [81]u8,
     
 
-    // Initlizer for the board struct, by default returns a board with all zero'ed val's
-    pub fn init () board {
+    // Initlizer for the Board struct, by default returns a Board with all zero'ed val's
+    pub fn init () Board {
         return . {
             .cells =  [_]u8{0} ** 81,
         };
@@ -14,13 +14,13 @@ const board = struct {
 
 
     // Returns the number at a position on the grid
-    pub fn at(self: board, x: u8, y: u8) u8 {
+    pub fn at(self: Board, x: u8, y: u8) u8 {
         return self.cells[y*9 + x];  
     }
 
 
     // Returns whether or not given a position and value if its valid, if there a val there return false
-    pub fn is_valid(self: board, x: usize, y: usize, val: u8) bool {
+    pub fn is_valid(self: Board, x: usize, y: usize, val: u8) bool {
 
         // If cell not empty return false
         if (self.cells[y * 9 + x] != 0) {
@@ -49,43 +49,46 @@ const board = struct {
         return true;
     }
 
-    // Goes through and zeros the entire board
-    pub fn zero(self: *board) void {
+    // Goes through and zeros the entire Board
+    pub fn zero(self: *Board) void {
         for (0..81) |i| {
             self.cells[i] = 0;
         }
     }
 
     // Returns false if cell empty and true otherwise
-    pub fn empty(self: board, x: u8, y: u8) bool {
+    pub fn empty(self: Board, x: u8, y: u8) bool {
         if (self.cells[y*9 + x] == 0) {
             return true;
         }
         return false;
     }
 
+    // Sets a position on the grid to the input number
+    pub fn set(self: *Board, x: u8, y: u8, input: u8) void {
+        self.cells[y*9 + x] = input;
+    }   
+
 
     pub fn print(self: Board) void {
-        const stdout = std.io.getStdOut().writer();
-        
         for (0..9) |row| {
             if (row % 3 == 0) {
-                stdout.print("+-------+-------+-------+\n", .{}) catch unreachable;
+                std.debug.print("+-------+-------+-------+\n", .{});
             }
             for (0..9) |col| {
                 if (col % 3 == 0) {
-                    stdout.print("| ", .{}) catch unreachable;
+                    std.debug.print("| ", .{});
                 }
                 const val = self.cells[row * 9 + col];
                 if (val == 0) {
-                    stdout.print(". ", .{}) catch unreachable;
+                    std.debug.print(". ", .{});
                 } else {
-                    stdout.print("{d} ", .{val}) catch unreachable;
+                    std.debug.print("{d} ", .{val});
                 }
             }
-            stdout.print("|\n", .{}) catch unreachable;
+            std.debug.print("|\n", .{});
         }
-        stdout.print("+-------+-------+-------+\n", .{}) catch unreachable;
+        std.debug.print("+-------+-------+-------+\n", .{});
     }
 
 };
