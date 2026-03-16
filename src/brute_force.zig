@@ -5,10 +5,28 @@ const Board = board.Board;
 // brute force method of solving the sudoku
 pub fn brute_force(sudoku_board: *Board) bool {
 
+    const next_cell = find_empty(sudoku_board.*);
+
     // Base case, board is solved 
-    if (filled(sudoku_board.*)) {
-        return;
+    if (next_cell == null) {
+        return true;
     }
+
+    const cell = next_cell.?;
+
+    for (1..10) |i| {
+        if (sudoku_board.is_valid(sudoku_board.*, cell.x, cell.y, @intCast(i))) {
+            sudoku_board.cells[cell.y * 9 + cell.x] = @intCast(i);
+            if (brute_force(sudoku_board)) {
+                return true;
+            }
+            sudoku_board.cells[cell.y * 9 + cell.x] = 0;
+        }
+    }
+    
+    return false;
+    
+
 
 
 
