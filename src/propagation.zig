@@ -25,13 +25,65 @@ pub fn propagation(sudoku_board: *Board) bool {
     }
     
     return false;
-    
-
-
 
 
 }
 
+// Only touches the candidates list no modifying the board
+pub fn propagate(sudoku_board: *Board, x: usize, y: usize) bool {
+    const current_val: u8 = sudoku_board.cells[y * 9 + x];
+    const bit: u9 = @as(u9, 1) << @intCast(current_val);
+
+    // Remove this value from all peers in the same row
+    for (0..9) |i| {
+        if (i == x) continue;
+        const idx = y * 9 + i;
+        sudoku_board.candidates[idx] &= ~bit;
+        if (sudoku_board.cells[idx] != 0) continue;
+        if (sudoku_board.candidates[idx] == 0) return false;
+        if (@popCount(sudoku_board.candidates[idx]) == 1) {
+            const forced_val = @ctz(sudoku_board.candidates[idx]);
+            sudoku_board.cells[idx] = @intCast(forced_val);
+            if (!propagate(sudoku_board, i, y)) return false;
+        }
+    }
+
+    // Remove from column
+    for (0..9) |i| {
+        if (i == y) continue;
+        const idx = i * 9 + x;
+        sudoku_board.candidates[idx] &= ~bit;
+        if (sudoku_board.cells[idx] != 0) continue;
+        if (sudoku_board.candidates[idx] == 0) return false;
+        if (@popCount(sudoku_board.candidates[idx]) == 1) {
+            const forced_val = @ctz(sudoku_board.candidates[idx]);
+            sudoku_board.cells[idx] = @intCast(forced_val);
+            if (!propagate(sudoku_board, x, i)) return false;
+        }
+    }
+
+    // Remove from 3x3 box
+    const box_x = (x / 3) * 3;
+    const box_y = (y / 3) * 3;
+    for (0..3) |i| {
+        for (0..3) |j| {
+            const px = box_x + j;
+            const py = box_y + i;
+            if (px == x and py == y) continue;
+            const idx = py * 9 + px;
+            sudoku_board.candidates[idx] &= ~bit;
+            if (sudoku_board.cells[idx] != 0) continue;
+            if (sudoku_board.candidates[idx] == 0) return false;
+            if (@popCount(sudoku_board.candidates[idx]) == 1) {
+                const forced_val = @ctz(sudoku_board.candidates[idx]);
+                sudoku_board.cells[idx] = @intCast(forced_val);
+                if (!propagate(sudoku_board, px, py)) return false;
+            }
+        }
+    }
+
+    return true;
+}
 // returns true if solved and false otherwise
 pub fn filled(sudoku_board: Board) bool {
     for (0..81) |i| {
